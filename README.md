@@ -1,4 +1,4 @@
-# Supplementary Material for Review — Access-2026-40459
+# Supplementary Material for Review
 
 **"Microsecond-Latency, Fully On-Chip Limit Order Book Prediction on an Edge FPGA:
 A Lightweight INT8 1D-CNN Hardware–Software Co-Design"**
