@@ -1,26 +1,24 @@
-# 11_latency_and_baselines — Latency Distributions & Optimized CPU Baseline
+# 10_bitwidth_qat — Low-Bit QAT Curve 
 
-Supports the manuscript's **Batch-One Latency Distribution** table (Section VI)
-and the ONNX Runtime baseline discussion.
+Supports the QAT column added to the manuscript's **Bit-Width Sensitivity** table
+(Section IV) and the associated figure.
 
-## Files
-- `results_latency_dist.json` — batch-one latency over 5,000 iterations for the
-  GPU (RTX 5070 Laptop, FP32) and CPU (PyTorch, FP32): median / p95 / p99 / min /
-  max / std, plus GPU batch-4 per-sample latency. FPGA core is deterministic
-  (fixed cycle count, σ = 0, 57 µs).
-- `results_onnx_baseline.json` — optimized CPU baseline (ONNX Runtime,
-  graph-optimized): prediction-level agreement with PyTorch = 100 % (identical
-  Macro-F1 0.8509), median 225.8 µs, p95 327 µs, p99 535 µs.
+## File
+- `results_lowbit_qat.json` — full-integer (weights + activations) Macro-F1 on the
+  CF_9 validation set at 16/8/6/4 bits, for both PTQ and QAT.
 
-## Key numbers (per-sample, batch = 1)
-| Platform            | Median (µs) | p95 | p99 | Std |
-|---------------------|-------------|-----|-----|-----|
-| GPU (FP32)          | 563         | 751 | 995 | 91  |
-| CPU (PyTorch, FP32) | 288         | 466 | 560 | 64  |
-| CPU (ONNX RT, FP32) | 226         | 327 | 535 | 79  |
-| FPGA core (INT8)    | 57          | 57  | 57  | 0   |
+## Key numbers
+| Bit width | Full-Int. PTQ | Full-Int. QAT |
+|-----------|---------------|---------------|
+| 16-bit    | 0.8511        | —             |
+| 8-bit     | 0.7843        | 0.8493        |
+| 6-bit     | 0.5333        | 0.8392        |
+| 4-bit     | 0.3997        | 0.6592        |
 
-Note: the distribution-run GPU mean (588 µs) is consistent with the 594.96 µs
-steady-state value used for the energy-efficiency ratios in the paper (two
-measurement runs of the same platform). ONNX Runtime is a native-CPU optimized
-baseline and is a different measurement basis from the PyTorch-CPU row (288 µs).
+Interpretation (as in the paper): the sub-8-bit "cliff" is an artifact of PTQ;
+QAT recovers the 6-bit full-integer point to near-lossless (0.8392), so INT8 is
+selected on hardware grounds (byte alignment, DSP48E2 packing), not because
+accuracy forces it. 4-bit remains degraded even under QAT.
+
+The 8-bit QAT validation value (0.8493) is consistent with the deployed test-set
+Macro-F1 of 0.8331 (different split: validation vs held-out test day).
