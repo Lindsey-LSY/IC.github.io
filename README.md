@@ -1,25 +1,31 @@
-# 13_power_measurement — Direct Board Power Measurement
+# 12_model_selection — Plain vs Residual, Hardware-Aware Comparison
 
-Supports the manuscript's switch from a Vivado vectorless **estimate** to a
-**directly measured** whole-board power for the deployed LO-Arch (Section VI):
-**3.11 W** (fluctuating within 3.10–3.12 W), which sets the 41.6× energy-efficiency
-ratio against the GPU.
+Supports the FP32/INT8/quantization-loss columns added to the manuscript's
+**Residual and Focal-Loss Ablation** table (Section IV), which justify deploying
+the residual model over the (nominally more accurate in FP32) plain CNN.
 
-## Measurement setup
-- Instrument: external DT550 in-line DC power meter, on the board's 12 V supply rail.
-- Board: ALINX AXKU041 (xcku040-ffva1156-2-e), 100 MHz.
-- Reading basis: whole-board draw during sustained on-board inference (same
-  device-level basis as the GPU total-card power, so the two are comparable).
+## File
+- `results_pcin_compare.json` — three configurations (Plain CNN+CE, Residual CNN+CE,
+  Residual CNN+Focal) each run through the identical FP32 → QAT → INT8
+  (per-channel-input, weight-folded) flow on CF_9, with per-class INT8 recall/F1.
 
-## Files
-- `power_measurement.mp4` — video of the DT550 in-line meter during sustained
-  on-board inference, showing the whole-board power holding at **3.10–3.12 W**
-  (reported as 3.11 W in the manuscript).
+## Key numbers
+| Configuration          | FP32 test | INT8 test | Quant. drop |
+|------------------------|-----------|-----------|-------------|
+| Plain CNN + CE         | 0.8536    | 0.7691    | 0.0845      |
+| Residual CNN + CE      | 0.8471    | 0.8409    | 0.0062      |
+| Residual CNN + Focal   | 0.8509    | 0.8331*   | 0.0178      |
 
-## Relationship to Fig. (power breakdown) and Table (folding DSE)
-The per-configuration chip-level values (LO-Arch 2.288 W, Sweet-spot 1.926 W,
-Uniform-8 1.005 W) in the folding table and the power-breakdown figure are Vivado
-post-route **vectorless chip-level estimates**, used only for relative comparison
-within the folding family. They are a different basis from the whole-board DT550
-measurement (3.11 W) and are not directly comparable in absolute terms; see
-`8_postroute_reports/` for the underlying `power_routed.rpt` files.
+Interpretation (as in the paper): the plain CNN wins in FP32 but collapses ~8.4 pt
+under full-integer quantization, whereas the residual variants stay within ~2 pt;
+the residual shortcut provides the quantization robustness the plain topology lacks,
+so at INT8 the deployed residual+Focal model outperforms the plain CNN by ~6 pt.
+
+## Note on the deployed-row value (important for cross-checking)
+The JSON lists **0.8314** for the Residual+Focal INT8 (this comparison re-runs the
+QAT→INT8 flow in a common harness for all three configs). The manuscript's table
+reports the **deployment** value **0.8331**, from the exact deployed parameters in
+`2_model_weights/int8_params_CF9_f144_pcin.npz`. The two differ only by run-to-run
+QAT rounding (≈0.2 pt); both are correct, and the paper uses 0.8331 consistently
+with the board test and Table 5. The Plain (0.7691) and Residual+CE (0.8409) values
+are the harness runs and appear as-is in the table.
