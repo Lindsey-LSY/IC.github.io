@@ -1,24 +1,26 @@
-# 12_model_selection — Plain vs Residual, Hardware-Aware Comparison
+# 11_latency_and_baselines — Latency Distributions & Optimized CPU Baseline
 
-Supports the FP32/INT8/quantization-loss columns added to the manuscript's
-**Residual and Focal-Loss Ablation** table (Section IV), which justify deploying
-the residual model over the (nominally more accurate in FP32) plain CNN.
+Supports the manuscript's **Batch-One Latency Distribution** table (Section VI)
+and the ONNX Runtime baseline discussion.
 
-## File
-- `results_pcin_compare.json` — three configurations (Plain CNN+CE, Residual CNN+CE,
-  Residual CNN+Focal) each run through the identical FP32 → QAT → INT8
-  (per-channel-input, weight-folded) flow on CF_9, with per-class INT8 recall/F1.
+## Files
+- `results_latency_dist.json` — batch-one latency over 5,000 iterations for the
+  GPU (RTX 5070 Laptop, FP32) and CPU (PyTorch, FP32): median / p95 / p99 / min /
+  max / std, plus GPU batch-4 per-sample latency. FPGA core is deterministic
+  (fixed cycle count, σ = 0, 57 µs).
+- `results_onnx_baseline.json` — optimized CPU baseline (ONNX Runtime,
+  graph-optimized): prediction-level agreement with PyTorch = 100 % (identical
+  Macro-F1 0.8509), median 225.8 µs, p95 327 µs, p99 535 µs.
 
-## Key numbers
-| Configuration          | FP32 test | INT8 test | Quant. drop |
-|------------------------|-----------|-----------|-------------|
-| Plain CNN + CE         | 0.8536    | 0.7691    | 0.0845      |
-| Residual CNN + CE      | 0.8471    | 0.8409    | 0.0062      |
-| Residual CNN + Focal   | 0.8509    | 0.8331   | 0.0178      |
+## Key numbers (per-sample, batch = 1)
+| Platform            | Median (µs) | p95 | p99 | Std |
+|---------------------|-------------|-----|-----|-----|
+| GPU (FP32)          | 563         | 751 | 995 | 91  |
+| CPU (PyTorch, FP32) | 288         | 466 | 560 | 64  |
+| CPU (ONNX RT, FP32) | 226         | 327 | 535 | 79  |
+| FPGA core (INT8)    | 57          | 57  | 57  | 0   |
 
-Interpretation (as in the paper): the plain CNN wins in FP32 but collapses ~8.4 pt
-under full-integer quantization, whereas the residual variants stay within ~2 pt;
-the residual shortcut provides the quantization robustness the plain topology lacks,
-so at INT8 the deployed residual+Focal model outperforms the plain CNN by ~6 pt.
-
-
+Note: the distribution-run GPU mean (588 µs) is consistent with the 594.96 µs
+steady-state value used for the energy-efficiency ratios in the paper (two
+measurement runs of the same platform). ONNX Runtime is a native-CPU optimized
+baseline and is a different measurement basis from the PyTorch-CPU row (288 µs).
