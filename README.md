@@ -20,11 +20,11 @@ parameters).
 | `6_seeds/` | `SEEDS.md` (3407 / 2026 / 5-seed set) | 
 | `7_board_test/` | Full-test-set on-board verification: `board_manifest.csv` (all **31,828** on-board sample IDs), `board_golden.npz` (golden outputs), `board_paired_results.csv` (31,828 FP32/INT8/board pairs), `mcnemar_result.txt` (McNemar FP32-vs-INT8), `board_test_144.py` (host **test** driver), `board_test_provenance.log` | 
 | `8_postroute_reports/` | Vivado routed `timing_summary` / `utilization_placed` / `power_routed` reports for the 5 feasible folding variants on xcku040-ffva1156-2-e | 
-| `9_across_fold/` | All-nine-fold generalization (R2#1): FP32 and QAT-INT8 per-fold Macro-F1 + mean±std. See folder `README.md` for the CF_9 value note. |
-| `10_bitwidth_qat/` | Low-bit QAT curve (R2#5): full-integer PTQ vs QAT at 16/8/6/4 bits. |
-| `11_latency_and_baselines/` | Batch-one latency distributions for GPU/CPU (R2#9) + optimized ONNX Runtime CPU baseline (R2#6). |
-| `12_model_selection/` | Plain-vs-residual hardware-aware comparison (R2#4): FP32/INT8 test Macro-F1 and quantization drop for the three configurations. See folder `README.md` for the deployed-row value note. |
-| `13_power_measurement/` | Direct whole-board power measurement (R2#7): DT550 in-line reading of 3.11 W for the deployed LO-Arch. |
+| `9_across_fold/` | All-nine-fold generalization: FP32 and QAT-INT8 per-fold Macro-F1 + mean±std. See folder `README.md` for the CF_9 value note. |
+| `10_bitwidth_qat/` | Low-bit QAT curve: full-integer PTQ vs QAT at 16/8/6/4 bits. |
+| `11_latency_and_baselines/` | Batch-one latency distributions for GPU/CPU + optimized ONNX Runtime CPU baseline. |
+| `12_model_selection/` | Plain-vs-residual hardware-aware comparison: FP32/INT8 test Macro-F1 and quantization drop for the three configurations. See folder `README.md` for the deployed-row value note. |
+| `13_power_measurement/` | Direct whole-board power measurement: DT550 in-line reading of 3.11 W for the deployed LO-Arch. |
 
 
 ---
