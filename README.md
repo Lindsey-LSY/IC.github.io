@@ -21,11 +21,4 @@ under full-integer quantization, whereas the residual variants stay within ~2 pt
 the residual shortcut provides the quantization robustness the plain topology lacks,
 so at INT8 the deployed residual+Focal model outperforms the plain CNN by ~6 pt.
 
-## Note on the deployed-row value (important for cross-checking)
-The JSON lists **0.8314** for the Residual+Focal INT8 (this comparison re-runs the
-QAT→INT8 flow in a common harness for all three configs). The manuscript's table
-reports the **deployment** value **0.8331**, from the exact deployed parameters in
-`2_model_weights/int8_params_CF9_f144_pcin.npz`. The two differ only by run-to-run
-QAT rounding (≈0.2 pt); both are correct, and the paper uses 0.8331 consistently
-with the board test and Table 5. The Plain (0.7691) and Residual+CE (0.8409) values
-are the harness runs and appear as-is in the table.
+
