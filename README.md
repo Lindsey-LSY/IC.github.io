@@ -14,7 +14,7 @@ the residual model over the (nominally more accurate in FP32) plain CNN.
 |------------------------|-----------|-----------|-------------|
 | Plain CNN + CE         | 0.8536    | 0.7691    | 0.0845      |
 | Residual CNN + CE      | 0.8471    | 0.8409    | 0.0062      |
-| Residual CNN + Focal   | 0.8509    | 0.8331*   | 0.0178      |
+| Residual CNN + Focal   | 0.8509    | 0.8331   | 0.0178      |
 
 Interpretation (as in the paper): the plain CNN wins in FP32 but collapses ~8.4 pt
 under full-integer quantization, whereas the residual variants stay within ~2 pt;
